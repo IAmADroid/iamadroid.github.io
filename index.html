@@ -21,7 +21,7 @@
 					<header id="header">
 						<div class="logo">
 							<!-- You can find more icons at https://fontawesome.com/search?q=bulb&o=r -->
-							<span class="icon fa-lightbulb"></span>
+							<span style="color:gold" class="icon fa-lightbulb"></span>
 						</div>
 						<div class="content">
 							<div class="inner">
@@ -99,7 +99,7 @@
 							<article id="about">
 								<h2 class="major">About</h2>
 								<span class="image main"><img src="images/pic03.jpg" alt="" /></span>
-								<p>This website was built and managed by Martin De La Torre, with the help of a website template by html5up.net (@ajlkn). If you'd like more detail on how this website was made, check out <a href="https://github.com/IAmADroid/iamadroid.github.io">the github project for this site.</a>
+								<p>This website was built and managed by Martin De La Torre, with the help of a website template by html5up.net (@ajlkn). If you'd like more detail on how this website was made, check out <a href="https://github.com/IAmADroid/iamadroid.github.io" target="_blank">the github project for this site.</a>
 								</p>
 								<p>
 									Some friends and family you might also be interested in checking out:
@@ -133,6 +133,12 @@
 										<li><input type="submit" value="Send Message" class="primary" /></li>
 										<li><input type="reset" value="Reset" /></li>
 									</ul>
+									<div style='display:none; color:black; background-color: gold; text-align: center; border-radius: 4px; font-size: 0.8rem; letter-spacing: 0.2rem; font-weight: 600; font-family: "Source Sans Pro", sans-serif; text-transform: uppercase; padding: 0 1.25rem 0 1.35rem; height: 2.75rem;' class="thankyou_message">
+										<!-- You can customize the thankyou message by editing the code below -->
+										<div style="position: relative;
+										top: 50%;
+										transform: translateY(-50%);">Email submitted.</div>
+									</div>
 								</form>
 								<ul class="icons">
 									<!-- <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li> -->
@@ -405,6 +411,7 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-
+			<!-- process email on contact page. Binds to gform forms. -->
+			<script data-cfasync="false" type="text/javascript" src="assets/js/form-submission-handler.js"></script>
 	</body>
 </html>
