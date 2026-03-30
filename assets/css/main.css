@@ -2,6 +2,26 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300italic,600italic,300,600");
 
 /*
+Custom CSS by Martin DLT
+the CSS after Martin's CSS is by html5up.net
+*/ 
+
+.loader {
+  border: 16px solid gold; /* pure white to match html5up */
+  border-top: 16px solid #ffffff; /* Warning Light gold */
+  border-radius: 50%;
+  height: 100%;
+  aspect-ratio : 1 / 1; /* instead of using height. */
+  /*width: 120px; (use aspect-ratio instead) */
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/*
 	Dimension by HTML5 UP
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
@@ -1140,9 +1160,12 @@ input, select, textarea {
 			-ms-transition-delay: 0.75s;
 			transition-delay: 0.75s;
 			background-image: linear-gradient(to top, rgba(19, 21, 25, 0.5), rgba(19, 21, 25, 0.5)), url("../../images/overlay.png");
-			background-size: auto, 256px 256px;
-			background-position: center, center;
-			background-repeat: no-repeat, repeat;
+			background-size: auto,
+ 256px 256px;
+			background-position: center,
+ center;
+			background-repeat: no-repeat,
+ repeat;
 			z-index: 2;
 		}
 

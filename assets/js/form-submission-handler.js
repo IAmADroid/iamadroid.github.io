@@ -51,8 +51,24 @@
     }
   
     function handleFormSubmit(event) {  // handles form submit without any jquery
-      event.preventDefault();           // we are submitting via xhr below
-      var form = event.target;
+      event.preventDefault();     //stops the page from redirecting when HTTP response comes back.
+      
+      var form = event.target; // we gotta define form cause we use it.
+
+      //First let's get the spinner going so they know we're doing stuff.
+      var submitSpinner = form.querySelector("#submit_spinner");
+      if (submitSpinner) {
+          submitSpinner.style.display = "block";
+      }
+
+      var submitButton = form.querySelector("#submit_button");
+      if(submitButton){
+        var originalButtonText = submitButton.value;
+        submitButton.value = "Sending...";
+      }
+
+      
+      // we are submitting via xhr below
       var formData = getFormData(form);
       var data = formData.data;
   
@@ -77,6 +93,17 @@
             var thankYouMessage = form.querySelector(".thankyou_message");
             if (thankYouMessage) {
               thankYouMessage.style.display = "block";
+            }
+
+            // Revert submit button text
+            if(submitButton){
+              submitButton.value = originalButtonText;
+            }
+
+            // Turn the spinner back off
+            var submitSpinner = form.querySelector("#submit_spinner");
+            if (submitSpinner) {
+                submitSpinner.style.display = "none";
             }
           }
       };
