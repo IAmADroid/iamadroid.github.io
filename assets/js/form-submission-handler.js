@@ -70,7 +70,11 @@
 
       var submitButton = form.querySelector("#submit_button");
       if(submitButton){
-        var originalButtonText = submitButton.value;
+        if(!submitButton.hasAttribute("original_value")){
+            //We only run this if the OG value is not already set.
+            submitButton.setAttribute("original_value", submitButton.value);
+        }
+
         submitButton.value = "Sending...";
       }
 
@@ -104,7 +108,11 @@
 
             // Revert submit button text
             if(submitButton){
-              submitButton.value = originalButtonText;
+              //check if we need to revert the button text.
+              if(submitButton.hasAttribute("original_value")){
+                  submitButton.value = submitButton.getAttribute("original_value");
+                  submitButton.removeAttribute("original_value")
+              }
             }
 
             // Turn the spinner back off
