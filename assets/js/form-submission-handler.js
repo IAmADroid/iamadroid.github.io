@@ -55,6 +55,13 @@
       
       var form = event.target; // we gotta define form cause we use it.
 
+      // In case someone sends multiple messages, we should hide the thank
+      // you message so they don't get confused.
+      var thankYouMessage = form.querySelector(".thankyou_message");
+      if (thankYouMessage) {
+        thankYouMessage.style.display = "none";
+      }
+
       //First let's get the spinner going so they know we're doing stuff.
       var submitSpinner = form.querySelector("#submit_spinner");
       if (submitSpinner) {
