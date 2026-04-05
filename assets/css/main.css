@@ -7,6 +7,7 @@ the CSS after Martin's CSS is by html5up.net
 */ 
 
 .loader {
+  vertical-align: middle; /* Stops the "baseline shift" */
   border: 16px solid gold; /* pure white to match html5up */
   border-top: 16px solid #ffffff; /* Warning Light gold */
   border-radius: 50%;
