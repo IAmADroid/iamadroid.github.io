@@ -6,12 +6,18 @@ Custom CSS by Martin DLT
 the CSS after Martin's CSS is by html5up.net
 */ 
 
+#submit_button {
+    anchor-name: --my-anchor1;
+}
+
 .loader {
+  position-anchor: --my-anchor1;
+
   vertical-align: middle; /* Stops the "baseline shift" */
   border: 16px solid gold; /* pure white to match html5up */
   border-top: 16px solid #ffffff; /* Warning Light gold */
   border-radius: 50%;
-  height: 100%;
+  height: anchor-size(--my-anchor1 height, 100%);
   aspect-ratio : 1 / 1; /* instead of using height. */
   /*width: 120px; (use aspect-ratio instead) */
   animation: spin 2s linear infinite;
