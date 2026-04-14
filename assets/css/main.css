@@ -7,18 +7,28 @@ the CSS after Martin's CSS is by html5up.net
 */ 
 
 #submit_button {
-    anchor-name: --my-anchor1;
+    anchor-name: --my-submit-button-anchor;
+    flex: 1; /* make room for the spinner when it appears. */
 }
 
 .loader {
-  position-anchor: --my-anchor1;
+  position: relative;
+  position-anchor: --my-submit-button-anchor;
+
+  position-area: inline-end;
+  position-try-fallbacks: none; 
+  /*horizontal-align: left;*/
 
   vertical-align: middle; /* Stops the "baseline shift" */
   border: 16px solid gold; /* pure white to match html5up */
   border-top: 16px solid #ffffff; /* Warning Light gold */
   border-radius: 50%;
-  height: anchor-size(--my-anchor1 height, 100%);
-  aspect-ratio : 1 / 1; /* instead of using height. */
+  height: inherit !important;
+  width: unset !important;
+  /*height: anchor-size(--my-submit-button-anchor height, 100%) !important;*/
+  /*width: anchor-size(--my-submit-button-anchor height, 100%) !important;*/
+  aspect-ratio: 1 / 1 !important; /* instead of using width, but doesn't actually work if there is a width later on overriding this. Even though I added the !important, width property still overrides. */
+  /*width: auto !important;*/
   /*width: 120px; (use aspect-ratio instead) */
   animation: spin 2s linear infinite;
 }

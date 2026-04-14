@@ -134,9 +134,16 @@
 										</div>
 									</div>
 									<ul class="actions">
-										<li style="text-wrap: nowrap; display: flex; align-items: stretch;">
-                                            <input id="submit_button" type="submit" value="Send Message" class="primary" />
-                                            <div style='display:inline-flex;' id="submit_spinner" class="loader"></div>
+										<li>
+                                            <span style="text-wrap: nowrap; display: flex; align-items: stretch; overflow: hidden;">
+                                                <input id="submit_button" type="submit" value="Send Message" class="primary">
+                                                    <span style='display:inline-flex;' id="submit_spinner" class="loader">
+                                                        <script defer src="assets/js/fixspinner.js" type="text/javascript">
+                                                        </script>
+                                                    </span>
+                                                </input>
+                                                
+                                            </span>
                                         </li>
 										<li><input type="reset" value="Reset" /></li>
 									</ul>
