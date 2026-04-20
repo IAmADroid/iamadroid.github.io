@@ -96,7 +96,10 @@
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       xhr.onreadystatechange = function() {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            form.reset();
+            // we have the thankyou message to let us know that the form was submitted.
+            // we do not need to reset to give that visual feedback to the user.
+            // Also, by disabling reset, we allow the user to look over what they submitted.
+            // form.reset(); 
             var formElements = form.querySelector(".form-elements")
             if (formElements) {
               formElements.style.display = "none"; // hide form
