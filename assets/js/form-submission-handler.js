@@ -65,7 +65,7 @@
       //First let's get the spinner going so they know we're doing stuff.
       var submitSpinner = form.querySelector("#submit_spinner");
       if (submitSpinner) {
-          submitSpinner.style.display = "inline-block";
+          submitSpinner.style.display = "inline-flex";
       }
 
       var submitButton = form.querySelector("#submit_button");

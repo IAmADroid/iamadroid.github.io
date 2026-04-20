@@ -19,6 +19,8 @@ the CSS after Martin's CSS is by html5up.net
   position-try-fallbacks: none; 
   /*horizontal-align: left;*/
 
+  margin-left: 0.5rem;
+
   vertical-align: middle; /* Stops the "baseline shift" */
   border: 16px solid gold; /* pure white to match html5up */
   border-top: 16px solid #ffffff; /* Warning Light gold */
