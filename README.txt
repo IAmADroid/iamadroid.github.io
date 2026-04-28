@@ -35,3 +35,6 @@ The tutorial I'm following: https://github.com/dwyl/learn-to-send-email-via-goog
 has an interesting honeypot technique to reduce spam: 
 * https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server/issues/79
 * https://web.archive.org/web/20170704084529/https://jennamolby.com/how-to-prevent-form-spam-by-using-the-honeypot-technique/
+
+
+to test the reCAPTCHA locally: python -m http.server
