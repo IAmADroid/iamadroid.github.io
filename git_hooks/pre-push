@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Silently check if local script.gs matches deployed script.gs
+if $(git rev-parse --show-toplevel)/_mirror_code/test_gs.sh -s; then
+	# zero exit status. No differences.
+	exit 0;
+else
+	# non-zero exit status. Local and deployed do not match.
+	echo "PUSH ERROR! local ./_mirror_code/script.gs does not match deployed script.gs!"
+	echo "Perhaps update the local code to match?"
+	echo "  \$(git rev-parse --show-toplevel)/_mirror_code/test_gs.sh -u # update local script.gs"
+	echo "Push cancelled."
+	exit 1;
+fi
