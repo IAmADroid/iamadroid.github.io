@@ -92,6 +92,30 @@ function doPost(e) {
   }
 }
 
+/**
+ * There should be a g-recaptcha-response field coming in with each form submission.
+ * pass that code in here to make sure it's legit.
+ * 
+ * https://developers.google.com/recaptcha/docs/verify
+ */
+function verify_recaptcha(rcode){
+  var url = form.action;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', url);
+  // xhr.withCredentials = true;
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        // TODO: check the response to make sure it's legit
+      }
+  };
+  // url encode form data for sending as post data
+  var encoded = Object.keys(data).map(function(k) {
+      return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
+  }).join('&');
+  xhr.send(encoded);
+}
+
 
 /**
  * record_data inserts the data received from the html form submission
