@@ -3,12 +3,6 @@
 local_master_hash="$(git rev-parse master)"
 origin_master_hash="$(git rev-parse origin/master)"
 
-if ! git diff --exit-code --quiet HEAD -- $(git rev-parse --show-toplevel)/_mirror_code/script.gs; then
-  echo "ERROR: Uncommitted changes in _mirror_code/script.gs"
-  echo "please commit these changes before pushing."
-  exit 3;
-fi
-
 if [ "$local_master_hash" = "$origin_master_hash" ]; then
   echo "Local and origin repos match master branch."
   echo "skipping pre-push check..."
@@ -16,6 +10,13 @@ if [ "$local_master_hash" = "$origin_master_hash" ]; then
 fi
 echo "Local and origin repos have different master branches."
 echo "proceeding with pre-push hook."
+
+if ! git diff --exit-code --quiet HEAD -- $(git rev-parse --show-toplevel)/_mirror_code/script.gs; then
+  # we need everything committed because the test script checks against the working directory, it doesn't pull off the committed file.
+  echo "ERROR: Uncommitted changes in _mirror_code/script.gs"
+  echo "please commit these changes before pushing."
+  exit 3;
+fi
 
 echo "comparing local _mirror_code/script.gs to deployed script.gs"
 if [ "$(git branch --show-current)" != "master" ]; then
