@@ -42,53 +42,51 @@ function sanitizeInput(rawInput) {
 * https://developers.google.com/apps-script/guides/web#request_parameters
 */
 function doPost(e) {
-
   try {
-    Logger.log(e); // the Google Script version of console.log see: Class Logger
-    record_data(e);
-    
-    // shorter name for form data
-    var mailData = e.parameters;
-
-    // names and order of form elements (if set)
-    var orderParameter = e.parameters.formDataNameOrder;
-    var dataOrder;
-    if (orderParameter) {
-      dataOrder = JSON.parse(orderParameter);
+    if (!e || !e.parameters) {
+      throw new Error("No payload parameters provided in POST request.");
     }
+
+    var mailData = e.parameters;
     
-    // determine recepient of the email
-    // if you have your email uncommented above, it uses that `TO_ADDRESS`
-    // otherwise, it defaults to the email provided by the form's data attribute
-    // This is the vulnerable line talked about in the warning:
-    // https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server?tab=readme-ov-file#3-set-the-to_address-in-the-script
-    // I think I might change this to be secure by default
-    // and then submit a PR
-    // I think they might've chose this default behaviour
-    // to closer resemble https://formspree.io/
-    // for the peeps that don't care to read the docs...
-    var sendEmailTo = (typeof TO_ADDRESS !== "undefined") ? TO_ADDRESS : mailData.formGoogleSendEmail;
+    // Extract reCAPTCHA token (e.parameters values are arrays)
+    var captchaToken = mailData['g-recaptcha-response'] ? mailData['g-recaptcha-response'][0] : null;
     
-    // send email if to address is set
-    if (sendEmailTo) {
+    // Verify token against Google API
+    var isHuman = verifyCaptcha(captchaToken);
+
+    // Record submission to spreadsheet (including pass/fail status)
+    record_data(e, isHuman);
+    
+    var dataOrder = mailData.formDataNameOrder ? JSON.parse(mailData.formDataNameOrder) : null;
+    var sendEmailTo = (typeof TO_ADDRESS !== "undefined" && TO_ADDRESS) 
+                      ? TO_ADDRESS 
+                      : Session.getActiveUser().getEmail();
+    
+    // ONLY send email if reCAPTCHA verification passed
+    if (isHuman && sendEmailTo) {
       MailApp.sendEmail({
         to: String(sendEmailTo),
-        subject: "Contact form submitted",
-        // replyTo: String(mailData.email), // This is optional and reliant on your form actually collecting a field named `email`
+        subject: "Contact Form Submitted",
         htmlBody: formatMailBody(mailData, dataOrder)
       });
+      
+      return ContentService
+        .createTextOutput(JSON.stringify({ "result": "success", "message": "Email sent successfully." }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } else {
+      // Submission recorded in sheet, but email blocked due to spam/bot detection
+      Logger.log("Submission logged to sheet, but email suppressed (Bot detected).");
+      return ContentService
+        .createTextOutput(JSON.stringify({ "result": "flagged", "message": "Submission recorded, captcha failed." }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
-    return ContentService    // return json success results
-          .createTextOutput(
-            JSON.stringify({"result":"success",
-                            "data": JSON.stringify(e.parameters) }))
-          .setMimeType(ContentService.MimeType.JSON);
-  } catch(error) { // if error return this
+  } catch (error) {
     Logger.log(error);
     return ContentService
-          .createTextOutput(JSON.stringify({"result":"error", "error": error}))
-          .setMimeType(ContentService.MimeType.JSON);
+      .createTextOutput(JSON.stringify({ "result": "error", "error": error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -189,4 +187,49 @@ function getFieldFromData(field, data) {
   var values = data[field] || '';
   var output = values.join ? values.join(', ') : values;
   return output;
+}
+
+// gemini code below
+//----------------------------------------
+// Replace with your secret key from the Google reCAPTCHA Admin Console
+var RECAPTCHA_SECRET_KEY = "YOUR_RECAPTCHA_SECRET_KEY_HERE";
+
+/**
+ * Validates a reCAPTCHA token against Google's siteverify API.
+ * @param {string} captchaToken - The token sent from the form ('g-recaptcha-response').
+ * @returns {boolean} - True if human/valid, false if bot or invalid token.
+ */
+function verifyCaptcha(captchaToken) {
+  // If no secret key is set or no token provided, fail verification
+  if (!RECAPTCHA_SECRET_KEY || RECAPTCHA_SECRET_KEY === "YOUR_RECAPTCHA_SECRET_KEY_HERE" || !captchaToken) {
+    Logger.log("reCAPTCHA Verification skipped: Missing key or token.");
+    return false;
+  }
+
+  var payload = {
+    'secret': RECAPTCHA_SECRET_KEY,
+    'response': captchaToken
+  };
+
+  var options = {
+    'method': 'post',
+    'payload': payload
+  };
+
+  try {
+    var response = UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', options);
+    var json = JSON.parse(response.getContentText());
+
+    Logger.log("reCAPTCHA Verification Result: " + JSON.stringify(json));
+
+    // For reCAPTCHA v2: Checks if success is true
+    // For reCAPTCHA v3: Checks if success is true AND score is >= 0.5 (threshold)
+    var isSuccess = json.success === true;
+    var isHumanScore = (typeof json.score !== 'undefined') ? json.score >= 0.5 : true;
+
+    return isSuccess && isHumanScore;
+  } catch (e) {
+    Logger.log("Error verifying reCAPTCHA: " + e.toString());
+    return false;
+  }
 }
