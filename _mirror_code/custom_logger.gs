@@ -1,3 +1,7 @@
+function testLog(){
+  logToSheet("This is a test log!");
+}
+
 function logToSheet(data){
     // let sheet = SpreadsheetApp.openById("INSERT_ID_HERE");
     var lock = LockService.getDocumentLock();
@@ -5,7 +9,8 @@ function logToSheet(data){
 
     // select the 'responses' sheet by default
     var doc = SpreadsheetApp.getActiveSpreadsheet();
-    var sheetName = e.parameters.formGoogleSheetName || "log";
+    //var sheetName = e.parameters.formGoogleSheetName || "log";
+    var sheetName = "log";
     var sheet = doc.getSheetByName(sheetName);
     //sheet = sheet.getSheetByName("log");
 
