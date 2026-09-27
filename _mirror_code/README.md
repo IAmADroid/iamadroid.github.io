@@ -30,4 +30,9 @@ If you look in my [`index.html`](../index.html) in the code for the `<article id
 ```
  The HTML has a `<form>` tag, which lays out all the text box inputs on the website, and it is set to make an HTTP POST request to a special `script.google.com` URL. (you can find this special URL for your Apps Script by clicking on the "Deploy" button above the script editor, and clicking on "Manage Deployments". Full details in the original tutorial, linked above in server side docs)
 
+ ---
+
+ Gotta make sure dem permissions be correct for recaptcha, check ur google cloud console:
+ https://console.cloud.google.com/security/recaptcha
+
  
