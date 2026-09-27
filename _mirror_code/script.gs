@@ -7,12 +7,28 @@
 // if you want to store your email server-side (hidden), uncomment the next line
 var TO_ADDRESS = "REDACTED_EMAIL_ADDRESS+webapp@gmail.com";
 
+// For Gemini's verifyCaptcha(captchaToken) function:
+// Replace with your secret key from the Google reCAPTCHA Admin Console
+var RECAPTCHA_SECRET_KEY = "YOUR_RECAPTCHA_SECRET_KEY_HERE"; //UNUSED????? replaced by api_key???
+var RECAPTCHA_SITE_KEY   = "YOUR_RECAPTCHA_SITE_KEY_HERE";  //not sure why it's different?
+
+// Replace with the api key for the google cloud project:
+// go to: https://console.cloud.google.com/apis/credentials?project=vba-scripts
+// make a key if you don't have one
+// restrict it to only do: "reCAPTCHA Enterprise API"
+var RECAPTCHA_API_KEY = "YOUR_API_KEY_HERE";
+
 // spit out all the keys/values from the form in HTML for email
 // uses an array of keys if provided or the object to determine field order
 function formatMailBody(obj, order) {
   var result = "";
   if (!order) {
     order = Object.keys(obj);
+  }
+  
+  if(obj['g-recaptcha-response']){
+    obj['g-recaptcha-response'] = '<TOKEN OMITTED FOR BREVITY. SEE SPREADSHEET.>'
+    logToSheet("g recaptcha changed to: " + sanitizeInput(obj[key]));
   }
   
   // loop over all keys in the ordered form data
@@ -72,10 +88,15 @@ function doPost(e) {
     // Extract reCAPTCHA token (e.parameters values are arrays)
     var captchaToken = mailData['g-recaptcha-response'] ? mailData['g-recaptcha-response'][0] : null;
 
-    if(verifyCaptcha(captchaToken)){
+    var isVerified = verifyCaptcha(captchaToken);
+
+    if(isVerified){
         //now my email filter won't block ya!
-        sendEmailTo = sendEmailTo.replace('@', '+human@')
+        sendEmailTo = sendEmailTo.replace('@', '+human@');
     }
+
+    mailData['debug-field'] = 'verify captcha output was: ' + isVerified;
+    dataOrder = null; // yeah idk why we don't just trust formatMailBody on this...
     
     // send email if to address is set
     if (sendEmailTo) {
@@ -206,9 +227,6 @@ function getFieldFromData(field, data) {
 
 //---- Gemini Code below: (Oops!)
 
-// Replace with your secret key from the Google reCAPTCHA Admin Console
-var RECAPTCHA_SECRET_KEY = "YOUR_RECAPTCHA_SECRET_KEY_HERE";
-
 /**
  * Validates a reCAPTCHA token against Google's siteverify API.
  * @param {string} captchaToken - The token sent from the form ('g-recaptcha-response').
@@ -232,6 +250,8 @@ function verifyCaptcha(captchaToken) {
   };
 
   try {
+    // Strangely, I had to add a "trigger" for UrlFetchApp to work?
+    // https://stackoverflow.com/a/62791834/4879593
     var response = UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', options);
     var json = JSON.parse(response.getContentText());
 
