@@ -44,7 +44,7 @@ function sanitizeInput(rawInput) {
 function doPost(e) {
 
   try {
-    Logger.log(e); // the Google Script version of console.log see: Class Logger
+    logToSheet(e); // the Google Script version of console.log see: Class Logger
     record_data(e);
     
     // shorter name for form data
@@ -68,6 +68,14 @@ function doPost(e) {
     // to closer resemble https://formspree.io/
     // for the peeps that don't care to read the docs...
     var sendEmailTo = (typeof TO_ADDRESS !== "undefined") ? TO_ADDRESS : mailData.formGoogleSendEmail;
+
+    // Extract reCAPTCHA token (e.parameters values are arrays)
+    var captchaToken = mailData['g-recaptcha-response'] ? mailData['g-recaptcha-response'][0] : null;
+
+    if(verifyCaptcha(captchaToken)){
+        //now my email filter won't block ya!
+        sendEmailTo = sendEmailTo.replace('@', '+human@')
+    }
     
     // send email if to address is set
     if (sendEmailTo) {
@@ -85,7 +93,7 @@ function doPost(e) {
                             "data": JSON.stringify(e.parameters) }))
           .setMimeType(ContentService.MimeType.JSON);
   } catch(error) { // if error return this
-    Logger.log(error);
+    logToSheet(error);
     return ContentService
           .createTextOutput(JSON.stringify({"result":"error", "error": error}))
           .setMimeType(ContentService.MimeType.JSON);
@@ -98,6 +106,9 @@ function doPost(e) {
  * 
  * https://developers.google.com/recaptcha/docs/verify
  */
+
+//Going to go with Gemini's verifyCaptcha() instead...
+/*
 function verify_recaptcha(rcode){
   var url = form.action;
   var xhr = new XMLHttpRequest();
@@ -114,7 +125,9 @@ function verify_recaptcha(rcode){
       return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
   }).join('&');
   xhr.send(encoded);
-}
+}*/ 
+
+
 
 
 /**
@@ -126,7 +139,7 @@ function record_data(e) {
   lock.waitLock(30000); // hold off up to 30 sec to avoid concurrent writing
   
   try {
-    Logger.log(JSON.stringify(e)); // log the POST data in case we need to debug it
+    logToSheet(JSON.stringify(e)); // log the POST data in case we need to debug it
     
     // select the 'responses' sheet by default
     var doc = SpreadsheetApp.getActiveSpreadsheet();
@@ -170,7 +183,7 @@ function record_data(e) {
     }
   }
   catch(error) {
-    Logger.log(error);
+    logToSheet(error);
   }
   finally {
     lock.releaseLock();
@@ -189,4 +202,49 @@ function getFieldFromData(field, data) {
   var values = data[field] || '';
   var output = values.join ? values.join(', ') : values;
   return output;
+}
+
+//---- Gemini Code below: (Oops!)
+
+// Replace with your secret key from the Google reCAPTCHA Admin Console
+var RECAPTCHA_SECRET_KEY = "YOUR_RECAPTCHA_SECRET_KEY_HERE";
+
+/**
+ * Validates a reCAPTCHA token against Google's siteverify API.
+ * @param {string} captchaToken - The token sent from the form ('g-recaptcha-response').
+ * @returns {boolean} - True if human/valid, false if bot or invalid token.
+ */
+function verifyCaptcha(captchaToken) {
+  // If no secret key is set or no token provided, fail verification
+  if (!RECAPTCHA_SECRET_KEY || RECAPTCHA_SECRET_KEY === "YOUR_RECAPTCHA_SECRET_KEY_HERE" || !captchaToken) {
+    logToSheet("reCAPTCHA Verification skipped: Missing key or token.");
+    return false;
+  }
+
+  var payload = {
+    'secret': RECAPTCHA_SECRET_KEY,
+    'response': captchaToken
+  };
+
+  var options = {
+    'method': 'post',
+    'payload': payload
+  };
+
+  try {
+    var response = UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', options);
+    var json = JSON.parse(response.getContentText());
+
+    logToSheet("reCAPTCHA Verification Result: " + JSON.stringify(json));
+
+    // For reCAPTCHA v2: Checks if success is true
+    // For reCAPTCHA v3: Checks if success is true AND score is >= 0.5 (threshold)
+    var isSuccess = json.success === true;
+    var isHumanScore = (typeof json.score !== 'undefined') ? json.score >= 0.5 : true;
+
+    return isSuccess && isHumanScore;
+  } catch (e) {
+    logToSheet("Error verifying reCAPTCHA: " + e.toString());
+    return false;
+  }
 }
