@@ -77,6 +77,9 @@ fi
 source ./SECRET.sh # get $SECRET_EMAIL_ADDRESS variable
 cp ./script.js ./script.js.REDACTED
 sed -i.bak "s/$SECRET_EMAIL_ADDRESS/REDACTED_EMAIL_ADDRESS/g" ./script.js.REDACTED
+sed -i     "s/$SECRET_RECAPTCHA_SECRET_KEY/YOUR_RECAPTCHA_SECRET_KEY_HERE/g" ./script.js.REDACTED
+sed -i     "s/$SECRET_RECAPTCHA_SITE_KEY/YOUR_RECAPTCHA_SITE_KEY_HERE/g" ./script.js.REDACTED
+sed -i     "s/$SECRET_RECAPTCHA_API_KEY/YOUR_API_KEY_HERE/g" ./script.js.REDACTED
 
 # I think typically you edit on the website, not locally
 # so since ./script.js.REDACTED is from the google drive website,
