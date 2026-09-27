@@ -86,8 +86,14 @@ sed -i     "s/$SECRET_RECAPTCHA_API_KEY/YOUR_API_KEY_HERE/g" ./script.js.REDACTE
 # and since it should typically have the newest version of the code,
 # it goes second.
 
-diff_out="$(git diff --no-index ../script.gs ./script.js.REDACTED)"
-diff_status=$?
+diff_out_mainscript="$(git diff --no-index ../script.gs ./script.js.REDACTED)"
+diff_status_mainscript=$?
+
+diff_out_logscript="$(git diff --no-index --minimal ../custom_logger.gs ./custom_logger.js)"
+diff_status_logscript=$?
+
+diff_out="$diff_out_mainscript$diff_out_logscript"
+diff_status=$(( $diff_status_mainscript | $diff_status_logscript ))
 
 if $DEBUG; then
   echo "diff_status is: $diff_status";
@@ -104,11 +110,13 @@ if (( $diff_status == 0 )); then
     exit 0;
 else
     if $DEBUG; then
-        git diff --no-index ../script.gs ./script.js.REDACTED
+        # git diff --no-index ../script.gs ./script.js.REDACTED
+        echo "$diff_out"
         echo -e "\nLocal script.gs does not match deployed script.gs!!!!"
     fi
     if $UPDATE; then
         cp ./script.js.REDACTED ../script.gs
+        cp ./custom_logger.js ../custom_logger.gs
         if $DEBUG; then
             echo -e "\nUPDATE COMPLETE. Local script.gs updated to match deployed script.gs"
         fi
